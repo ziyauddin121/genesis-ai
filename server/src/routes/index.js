@@ -1,13 +1,9 @@
 import { Router } from 'express';
+import healthRouter from './health.routes.js';
 
 const router = Router();
 
-// API Health Check Route
-router.get('/health', (req, res) => {
-  res.status(200).json({
-    success: true,
-    status: 'ok',
-  });
-});
+// Mount sub-routers
+router.use('/', healthRouter);
 
 export default router;
