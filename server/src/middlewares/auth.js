@@ -1,8 +1,7 @@
-import jwt from 'jsonwebtoken';
-import env from '../config/env.js';
 import AuthRepository from '../repositories/auth.repository.js';
 import AppError from '../utils/AppError.js';
 import asyncHandler from '../utils/asyncHandler.js';
+import { verifyToken } from '../utils/jwt.js';
 
 /**
  * @desc    Protects routes requiring user authentication
@@ -26,10 +25,10 @@ export const protect = asyncHandler(async (req, res, next) => {
   }
 
   try {
-    // Verify JWT signature
-    const decoded = jwt.verify(token, env.JWT_SECRET);
+    // Verify JWT signature via utility helper
+    const decoded = verifyToken(token);
 
-    // Locate matching database user via concise findById
+    // Locate matching database user via AuthRepository
     const user = await AuthRepository.findById(decoded.id);
     if (!user) {
       throw new AppError('User session invalid or deleted', 401);

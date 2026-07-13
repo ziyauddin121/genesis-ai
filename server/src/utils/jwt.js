@@ -10,6 +10,14 @@ export const generateToken = (userId) => {
   });
 };
 
-export default {
+/**
+ * @desc    Verifies and decodes a signed JWT session token
+ */
+export const verifyToken = (token) => {
+  return jwt.verify(token, env.JWT_SECRET);
+};
+
+export  {
   generateToken,
+  verifyToken,
 };
