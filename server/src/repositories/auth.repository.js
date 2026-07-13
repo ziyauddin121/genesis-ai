@@ -3,10 +3,10 @@ import User from '../models/user.model.js';
 /**
  * @desc    Finds a user matching the email parameter, optionally including select options
  */
-const findByEmail = async ({ email, selectFields = '' }) => {
+const findByEmail = async ({ email, select = '' }) => {
   let query = User.findOne({ email });
-  if (selectFields) {
-    query = query.select(selectFields);
+  if (select) {
+    query = query.select(select);
   }
   return await query.exec();
 };

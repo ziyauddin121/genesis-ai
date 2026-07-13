@@ -52,7 +52,7 @@ export const registerUser = async ({ fullName, email, password }) => {
  */
 export const loginUser = async ({ email, password }) => {
   // 1. Retrieve user by email using concise findByEmail with object parameter
-  const user = await AuthRepository.findByEmail({ email, selectFields: '+password' });
+  const user = await AuthRepository.findByEmail({ email, select: '+password' });
   if (!user) {
     throw new AppError('Invalid email or password', 401);
   }
