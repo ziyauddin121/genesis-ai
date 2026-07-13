@@ -6,16 +6,15 @@ export const validate = (schema) => {
 
     if (!result.success) {
       // Collect all Zod validation details
-      const errors = result.error.errors.map((err) => ({
+      const errors = result.error.issues.map((err) => ({
         field: err.path.join('.'),
         message: err.message,
       }));
 
-      const errorMessages = errors.map((e) => e.message).join(', ');
-      
-      const appError = new AppError(`Validation failed: ${errorMessages}`, 400);
+      // Create a clean AppError with 422 Unprocessable Entity status code
+      const appError = new AppError('Validation failed', 422);
       appError.errors = errors; // Expose detailed fields to global error handler
-      
+
       return next(appError);
     }
 
