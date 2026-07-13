@@ -7,8 +7,8 @@ import { generateToken } from '../utils/jwt.js';
  * @desc    Handles user registration business logic (checking duplicates, password hashing)
  */
 export const registerUser = async ({ fullName, email, password, role }) => {
-  // 1. Check if email is already in use
-  const existingUser = await AuthRepository.findUserByEmail(email);
+  // 1. Check if email is already in use using concise findByEmail
+  const existingUser = await AuthRepository.findByEmail(email);
   if (existingUser) {
     throw new AppError('Email already registered', 400);
   }
@@ -17,8 +17,8 @@ export const registerUser = async ({ fullName, email, password, role }) => {
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  // 3. Save new record through data access repository
-  const newUser = await AuthRepository.createUser({
+  // 3. Save new record using concise create
+  const newUser = await AuthRepository.create({
     fullName,
     email,
     password: hashedPassword,
@@ -36,8 +36,8 @@ export const registerUser = async ({ fullName, email, password, role }) => {
  * @desc    Handles credentials checking, state validation, timestamps, and session token generation
  */
 export const loginUser = async ({ email, password }) => {
-  // 1. Retrieve user by email (explicitly selecting the password hash)
-  const user = await AuthRepository.findUserByEmail(email, '+password');
+  // 1. Retrieve user by email using concise findByEmail
+  const user = await AuthRepository.findByEmail(email, '+password');
   if (!user) {
     throw new AppError('Invalid email or password', 401);
   }
@@ -53,8 +53,8 @@ export const loginUser = async ({ email, password }) => {
     throw new AppError('Your account has been deactivated. Please contact support.', 403);
   }
 
-  // 4. Update last login timestamp through the repository
-  const updatedUser = await AuthRepository.updateUser(user._id, {
+  // 4. Update last login timestamp using concise update
+  const updatedUser = await AuthRepository.update(user._id, {
     lastLogin: new Date(),
   });
 

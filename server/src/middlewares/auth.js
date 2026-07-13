@@ -29,8 +29,8 @@ export const protect = asyncHandler(async (req, res, next) => {
     // Verify JWT signature
     const decoded = jwt.verify(token, env.JWT_SECRET);
 
-    // Locate matching database user via AuthRepository
-    const user = await AuthRepository.findUserById(decoded.id);
+    // Locate matching database user via concise findById
+    const user = await AuthRepository.findById(decoded.id);
     if (!user) {
       throw new AppError('User session invalid or deleted', 401);
     }

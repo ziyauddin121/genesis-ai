@@ -3,7 +3,7 @@ import User from '../models/user.model.js';
 /**
  * @desc    Finds a user matching the email parameter, optionally including select options
  */
-export const findUserByEmail = async (email, selectFields = '') => {
+export const findByEmail = async (email, selectFields = '') => {
   let query = User.findOne({ email });
   if (selectFields) {
     query = query.select(selectFields);
@@ -14,21 +14,21 @@ export const findUserByEmail = async (email, selectFields = '') => {
 /**
  * @desc    Retrieves user record by database primary key
  */
-export const findUserById = async (id) => {
+export const findById = async (id) => {
   return await User.findById(id).exec();
 };
 
 /**
  * @desc    Writes a new user record into the Mongo collection
  */
-export const createUser = async (userData) => {
+export const create = async (userData) => {
   return await User.create(userData);
 };
 
 /**
  * @desc    Updates user details based on ID
  */
-export const updateUser = async (id, updateData) => {
+export const update = async (id, updateData) => {
   return await User.findByIdAndUpdate(id, updateData, {
     new: true,
     runValidators: true,
@@ -36,8 +36,8 @@ export const updateUser = async (id, updateData) => {
 };
 
 export default {
-  findUserByEmail,
-  findUserById,
-  createUser,
-  updateUser,
+  findByEmail,
+  findById,
+  create,
+  update,
 };
