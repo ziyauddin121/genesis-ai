@@ -34,3 +34,34 @@ export const login = async (req, res) => {
   // Return only sanitized user details in body, excluding the token
   return sendSuccess(res, 'User logged in successfully', { user }, 200);
 };
+
+/**
+ * @desc    Get current authenticated user profile
+ * @route   GET /api/auth/me
+ * @access  Private
+ */
+export const getMe = async (req, res) => {
+  // req.user has already been loaded and attached by the protect middleware
+  const userResponse = {
+    id: req.user._id,
+    fullName: req.user.fullName,
+    email: req.user.email,
+    avatar: req.user.avatar,
+    role: req.user.role,
+    isVerified: req.user.isVerified,
+  };
+
+  return sendSuccess(res, 'User profile retrieved successfully', { user: userResponse }, 200);
+};
+
+/**
+ * @desc    Clear active session cookie to log out user
+ * @route   POST /api/auth/logout
+ * @access  Private
+ */
+export const logout = async (req, res) => {
+  // Clear the HTTP-Only cookie matching COOKIE_NAME config
+  res.clearCookie(env.COOKIE_NAME, cookieOptions);
+
+  return sendSuccess(res, 'User logged out successfully', null, 200);
+};
