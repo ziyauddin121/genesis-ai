@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import env from './config/env.js';
 import apiRouter from './routes/index.js';
+import errorHandler from './middlewares/errorHandler.js';
 
 const app = express();
 
@@ -32,15 +33,6 @@ app.use((req, res, next) => {
 });
 
 // Global Error Handler
-app.use((err, req, res, next) => {
-  const statusCode = err.statusCode || 500;
-  console.error(`[Error] ${err.message}`, err.stack);
-  
-  res.status(statusCode).json({
-    success: false,
-    message: err.message || 'Internal Server Error',
-    ...(env.NODE_ENV === 'development' && { stack: err.stack }),
-  });
-});
+app.use(errorHandler);
 
 export default app;
