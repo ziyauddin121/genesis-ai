@@ -1,11 +1,13 @@
 import app from './app.js';
-import { config } from './config/index.js';
+import env from './config/env.js';
+import connectDB from './config/database.js';
 
-const server = app.listen(config.port, () => {
-  console.log(`=========================================`);
-  console.log(`🌌 Genesis AI Server running in [${config.env}] mode`);
-  console.log(`🔌 Listening on: http://localhost:${config.port}`);
-  console.log(`=========================================`);
+// Connect to Database
+await connectDB();
+
+// Start Server
+const server = app.listen(env.PORT, () => {
+  console.log(`🚀 Server running on port ${env.PORT}`);
 });
 
 // Handle graceful shutdown signals

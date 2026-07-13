@@ -13,3 +13,5 @@ export const config = {
   env: process.env.NODE_ENV || 'development',
   clientUrl: process.env.CLIENT_URL || 'http://localhost:3000',
 };
+
+export default config;

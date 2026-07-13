@@ -1,34 +1,32 @@
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
+import env from './config/env.js';
 import apiRouter from './routes/index.js';
-import { config } from './config/index.js';
 
 const app = express();
 
-// Security middlewares
+// Middlewares
 app.use(helmet());
-app.use(cors({ origin: config.clientUrl }));
-
-// Logger middleware
-if (config.env === 'development') {
-  app.use(morgan('dev'));
-} else {
-  app.use(morgan('combined'));
-}
-
-// Parsing middlewares
+app.use(cors({ origin: env.CLIENT_URL, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
-// API Root Routes
-app.use('/api/v1', apiRouter);
+// Logger middleware (development only)
+if (env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+}
 
-// Fallback for 404 Route Not Found
+// API Routes
+app.use('/api', apiRouter);
+
+// 404 Route Not Found fallback
 app.use((req, res, next) => {
   res.status(404).json({
-    status: 'error',
+    success: false,
     message: `Resource not found: ${req.method} ${req.originalUrl}`,
   });
 });
@@ -39,9 +37,9 @@ app.use((err, req, res, next) => {
   console.error(`[Error] ${err.message}`, err.stack);
   
   res.status(statusCode).json({
-    status: 'error',
+    success: false,
     message: err.message || 'Internal Server Error',
-    ...(config.env === 'development' && { stack: err.stack }),
+    ...(env.NODE_ENV === 'development' && { stack: err.stack }),
   });
 });
 
