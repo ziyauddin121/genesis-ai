@@ -7,9 +7,28 @@ import asyncHandler from '../utils/asyncHandler.js';
 
 const router = Router();
 
-router.post('/register', validate(registerSchema), asyncHandler(register));
-router.post('/login', validate(loginSchema), asyncHandler(login));
-router.get('/me', protect, asyncHandler(getMe));
-router.post('/logout', protect, asyncHandler(logout));
+router.post(
+  '/register',
+  validate(registerSchema),
+  asyncHandler(register)
+);
+
+router.post(
+  '/login',
+  validate(loginSchema),
+  asyncHandler(login)
+);
+
+router.get(
+  '/me',
+  protect,
+  asyncHandler(getMe)
+);
+
+router.post(
+  '/logout',
+  protect,
+  asyncHandler(logout)
+);
 
 export default router;
