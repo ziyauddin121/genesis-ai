@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import env from '../config/env.js';
-import User from '../models/user.model.js';
+import UserRepository from '../repositories/user.repository.js';
 import AppError from '../utils/AppError.js';
 import asyncHandler from '../utils/asyncHandler.js';
 
@@ -29,8 +29,8 @@ export const protect = asyncHandler(async (req, res, next) => {
     // Verify JWT signature
     const decoded = jwt.verify(token, env.JWT_SECRET);
 
-    // Locate matching database user
-    const user = await User.findById(decoded.id);
+    // Locate matching database user via Repository layer
+    const user = await UserRepository.findById(decoded.id);
     if (!user) {
       throw new AppError('User session invalid or deleted', 401);
     }
