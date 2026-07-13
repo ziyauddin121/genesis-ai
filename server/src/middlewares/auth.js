@@ -1,4 +1,4 @@
-import AuthRepository from '../repositories/auth.repository.js';
+import * as AuthRepository from '../repositories/auth.repository.js';
 import AppError from '../utils/AppError.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import { verifyAccessToken } from '../utils/jwt.js';
@@ -28,8 +28,8 @@ export const protect = asyncHandler(async (req, res, next) => {
     // Verify JWT signature via renamed verifyAccessToken helper
     const decoded = verifyAccessToken(token);
 
-    // Locate matching database user via AuthRepository
-    const user = await AuthRepository.findById(decoded.id);
+    // Locate matching database user via AuthRepository using object params
+    const user = await AuthRepository.findById({ id: decoded.id });
     if (!user) {
       throw new AppError('User session invalid or deleted', 401);
     }

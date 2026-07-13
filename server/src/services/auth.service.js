@@ -1,4 +1,4 @@
-import AuthRepository from '../repositories/auth.repository.js';
+import * as AuthRepository from '../repositories/auth.repository.js';
 import AppError from '../utils/AppError.js';
 import bcrypt from 'bcrypt';
 import { generateAccessToken } from '../utils/jwt.js';
@@ -18,35 +18,41 @@ const sanitizeUser = (user) => ({
 /**
  * @desc    Handles user registration business logic (checking duplicates, password hashing)
  */
-export const registerUser = async ({ fullName, email, password, role }) => {
-  // 1. Check if email is already in use
-  const existingUser = await AuthRepository.findByEmail(email);
+export const registerUser = async ({ fullName, email, password }) => {
+  // 1. Check if email is already in use using concise findByEmail with object parameter
+  const existingUser = await AuthRepository.findByEmail({ email });
   if (existingUser) {
-    throw new AppError('Email already registered', 400);
+    throw new AppError('Email already registered', 409); // 409 Conflict as requested
   }
 
-  // 2. Hash password
+  // 2. Hash password (business logic belongs here in Service layer)
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  // 3. Save new record
+  // 3. Save new record (role is always set to "user" inside server logic)
   const newUser = await AuthRepository.create({
     fullName,
     email,
     password: hashedPassword,
-    role,
+    role: 'user', // Hardcode role to "user" for client registration safety
   });
 
-  // 4. Return sanitized user data
-  return sanitizeUser(newUser);
+  // 4. Generate access token
+  const token = generateAccessToken(newUser._id);
+
+  // 5. Return sanitized user data and session token
+  return {
+    user: sanitizeUser(newUser),
+    token,
+  };
 };
 
 /**
  * @desc    Handles credentials checking, state validation, timestamps, and session token generation
  */
 export const loginUser = async ({ email, password }) => {
-  // 1. Retrieve user by email (explicitly selecting the password hash)
-  const user = await AuthRepository.findByEmail(email, '+password');
+  // 1. Retrieve user by email using concise findByEmail with object parameter
+  const user = await AuthRepository.findByEmail({ email, selectFields: '+password' });
   if (!user) {
     throw new AppError('Invalid email or password', 401);
   }
@@ -62,9 +68,10 @@ export const loginUser = async ({ email, password }) => {
     throw new AppError('Your account has been deactivated. Please contact support.', 403);
   }
 
-  // 4. Update last login timestamp through the repository
-  const updatedUser = await AuthRepository.update(user._id, {
-    lastLogin: new Date(),
+  // 4. Update last login timestamp using concise update with object parameter
+  const updatedUser = await AuthRepository.update({
+    id: user._id,
+    updateData: { lastLogin: new Date() },
   });
 
   // 5. Generate session access token

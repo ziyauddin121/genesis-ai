@@ -9,9 +9,17 @@ import env from '../config/env.js';
  */
 export const register = async (req, res, next) => {
   // Delegate business logic validation/hashing/creation to Service layer
-  const user = await AuthService.registerUser(req.body);
+  const result = await AuthService.registerUser(req.body);
 
-  return sendSuccess(res, 'User registered successfully', user, 201);
+  // Set HTTP-Only Cookie for session persistence
+  res.cookie('token', result.token, {
+    httpOnly: true,
+    secure: env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+  });
+
+  return sendSuccess(res, 'User registered successfully', result, 201);
 };
 
 /**
