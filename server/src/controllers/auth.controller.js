@@ -19,7 +19,7 @@ const generateToken = (userId) => {
  * @access  Public
  */
 export const register = async (req, res, next) => {
-  const { name, email, password, role } = req.body;
+  const { fullName, email, password, role } = req.body;
 
   // Check if user already exists
   const existingUser = await User.findOne({ email });
@@ -29,7 +29,7 @@ export const register = async (req, res, next) => {
 
   // Create new user (pre-save hook hashes password)
   const user = await User.create({
-    name,
+    fullName,
     email,
     password,
     role,
@@ -61,6 +61,15 @@ export const login = async (req, res, next) => {
   if (!isMatch) {
     throw new AppError('Invalid email or password', 401);
   }
+
+  // Check if account is suspended/active
+  if (!user.isActive) {
+    throw new AppError('Your account has been deactivated. Please contact support.', 403);
+  }
+
+  // Update last login timestamp
+  user.lastLogin = new Date();
+  await user.save();
 
   // Generate JWT token
   const token = generateToken(user._id);
