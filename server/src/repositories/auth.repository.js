@@ -35,7 +35,7 @@ export const update = async (id, updateData) => {
   }).exec();
 };
 
-export default {
+export {
   findByEmail,
   findById,
   create,
