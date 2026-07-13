@@ -1,0 +1,25 @@
+{
+  "name": "genesis-ai",
+  "version": "1.0.0",
+  "description": "Genesis AI - A Professional AI Project Monorepo",
+  "private": true,
+  "workspaces": [
+    "client",
+    "server",
+    "shared"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces --if-present",
+    "build": "npm run build --workspaces --if-present",
+    "start": "npm run start --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present"
+  },
+  "keywords": [
+    "ai",
+    "genesis",
+    "monorepo",
+    "fullstack"
+  ],
+  "author": "",
+  "license": "ISC"
+}
