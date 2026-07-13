@@ -2,22 +2,22 @@ import jwt from 'jsonwebtoken';
 import env from '../config/env.js';
 
 /**
- * @desc    Signs a new JWT session token for the user ID
+ * @desc    Signs a new JWT access token for the user ID
  */
-export const generateToken = (userId) => {
+export const generateAccessToken = (userId) => {
   return jwt.sign({ id: userId }, env.JWT_SECRET, {
     expiresIn: env.JWT_EXPIRES_IN,
   });
 };
 
 /**
- * @desc    Verifies and decodes a signed JWT session token
+ * @desc    Verifies and decodes a signed JWT access token
  */
-export const verifyToken = (token) => {
+export const verifyAccessToken = (token) => {
   return jwt.verify(token, env.JWT_SECRET);
 };
 
-export {
-  generateToken,
-  verifyToken,
+export{
+  generateAccessToken,
+  verifyAccessToken,
 };

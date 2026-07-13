@@ -1,7 +1,7 @@
 import AuthRepository from '../repositories/auth.repository.js';
 import AppError from '../utils/AppError.js';
 import bcrypt from 'bcrypt';
-import { generateToken } from '../utils/jwt.js';
+import { generateAccessToken } from '../utils/jwt.js';
 
 /**
  * @desc    Helper to sanitize user response fields and avoid accidental leaks
@@ -67,8 +67,8 @@ export const loginUser = async ({ email, password }) => {
     lastLogin: new Date(),
   });
 
-  // 5. Generate session token
-  const token = generateToken(updatedUser._id);
+  // 5. Generate session access token
+  const token = generateAccessToken(updatedUser._id);
 
   // 6. Return token and sanitized user details
   return {
