@@ -15,6 +15,7 @@ const envSchema = z.object({
   MONGODB_URI: z.string().default('mongodb://127.0.0.1:27017/genesis-ai'),
   CLIENT_URL: z.string().default('http://localhost:5173'),
   JWT_SECRET: z.string().default('supersecretjwtkey'),
+  JWT_EXPIRES_IN: z.string().default('24h'),
   GEMINI_API_KEY: z.string().optional(),
 });
 
