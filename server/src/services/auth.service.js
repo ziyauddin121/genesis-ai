@@ -1,24 +1,14 @@
-import UserRepository from '../repositories/user.repository.js';
+import AuthRepository from '../repositories/auth.repository.js';
 import AppError from '../utils/AppError.js';
 import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import env from '../config/env.js';
-
-/**
- * @desc    Signs a new JWT session token
- */
-export const generateToken = (userId) => {
-  return jwt.sign({ id: userId }, env.JWT_SECRET, {
-    expiresIn: '24h',
-  });
-};
+import { generateToken } from '../utils/jwt.js';
 
 /**
  * @desc    Handles user registration business logic (checking duplicates, password hashing)
  */
 export const registerUser = async ({ fullName, email, password, role }) => {
   // 1. Check if email is already in use
-  const existingUser = await UserRepository.findByEmail(email);
+  const existingUser = await AuthRepository.findUserByEmail(email);
   if (existingUser) {
     throw new AppError('Email already registered', 400);
   }
@@ -28,7 +18,7 @@ export const registerUser = async ({ fullName, email, password, role }) => {
   const hashedPassword = await bcrypt.hash(password, salt);
 
   // 3. Save new record through data access repository
-  const newUser = await UserRepository.create({
+  const newUser = await AuthRepository.createUser({
     fullName,
     email,
     password: hashedPassword,
@@ -47,7 +37,7 @@ export const registerUser = async ({ fullName, email, password, role }) => {
  */
 export const loginUser = async ({ email, password }) => {
   // 1. Retrieve user by email (explicitly selecting the password hash)
-  const user = await UserRepository.findByEmail(email, '+password');
+  const user = await AuthRepository.findUserByEmail(email, '+password');
   if (!user) {
     throw new AppError('Invalid email or password', 401);
   }
@@ -64,7 +54,7 @@ export const loginUser = async ({ email, password }) => {
   }
 
   // 4. Update last login timestamp through the repository
-  const updatedUser = await UserRepository.update(user._id, {
+  const updatedUser = await AuthRepository.updateUser(user._id, {
     lastLogin: new Date(),
   });
 
@@ -82,7 +72,6 @@ export const loginUser = async ({ email, password }) => {
 };
 
 export default {
-  generateToken,
   registerUser,
   loginUser,
 };

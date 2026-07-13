@@ -12,7 +12,7 @@ export const registerSchema = z.object({
     .email('Please provide a valid email address'),
   password: z
     .string({ required_error: 'Password is required' })
-    .min(8, 'Password must be at least 8 characters long'), // Industry standard 8-character min
+    .min(8, 'Password must be at least 8 characters long'),
   role: z.enum(['user', 'admin']).optional(),
 });
 
