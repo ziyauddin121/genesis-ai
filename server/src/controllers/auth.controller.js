@@ -1,20 +1,22 @@
 import AuthService from '../services/auth.service.js';
 import { sendSuccess } from '../utils/response.js';
 import { cookieOptions } from '../config/cookie.js';
+import env from '../config/env.js';
 
 /**
  * @desc    Register a new user account
  * @route   POST /api/auth/register
  * @access  Public
  */
-export const register = async (req, res, next) => {
+export const register = async (req, res) => {
   // Delegate business logic validation/hashing/creation to Service layer
-  const result = await AuthService.registerUser(req.body);
+  const { user, token } = await AuthService.registerUser(req.body);
 
-  // Set HTTP-Only Cookie for session persistence using shared config
-  res.cookie('token', result.token, cookieOptions);
+  // Set HTTP-Only Cookie for session persistence using shared config and dynamic key
+  res.cookie(env.COOKIE_NAME, token, cookieOptions);
 
-  return sendSuccess(res, 'User registered successfully', result, 201);
+  // Return only sanitized user details in body, excluding the token
+  return sendSuccess(res, 'User registered successfully', { user }, 201);
 };
 
 /**
@@ -22,12 +24,13 @@ export const register = async (req, res, next) => {
  * @route   POST /api/auth/login
  * @access  Public
  */
-export const login = async (req, res, next) => {
+export const login = async (req, res) => {
   // Delegate business validation and credential checking to Service layer
-  const result = await AuthService.loginUser(req.body);
+  const { user, token } = await AuthService.loginUser(req.body);
 
-  // Set HTTP-Only Cookie using shared config
-  res.cookie('token', result.token, cookieOptions);
+  // Set HTTP-Only Cookie using shared config and dynamic key
+  res.cookie(env.COOKIE_NAME, token, cookieOptions);
 
-  return sendSuccess(res, 'User logged in successfully', result, 200);
+  // Return only sanitized user details in body, excluding the token
+  return sendSuccess(res, 'User logged in successfully', { user }, 200);
 };

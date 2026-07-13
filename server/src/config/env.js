@@ -16,6 +16,7 @@ const envSchema = z.object({
   CLIENT_URL: z.string().default('http://localhost:5173'),
   JWT_SECRET: z.string().default('supersecretjwtkey'),
   JWT_EXPIRES_IN: z.string().default('24h'),
+  COOKIE_NAME: z.string().default('genesis_token'),
   GEMINI_API_KEY: z.string().optional(),
 });
 

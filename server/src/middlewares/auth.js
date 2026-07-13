@@ -2,6 +2,7 @@ import * as AuthRepository from '../repositories/auth.repository.js';
 import AppError from '../utils/AppError.js';
 import asyncHandler from '../utils/asyncHandler.js';
 import { verifyAccessToken } from '../utils/jwt.js';
+import env from '../config/env.js';
 
 /**
  * @desc    Protects routes requiring user authentication
@@ -9,14 +10,14 @@ import { verifyAccessToken } from '../utils/jwt.js';
 export const protect = asyncHandler(async (req, res, next) => {
   let token;
 
-  // Retrieve token from Authorization header or Cookies
+  // Retrieve token from Authorization header or Cookies (using env.COOKIE_NAME)
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith('Bearer')
   ) {
     token = req.headers.authorization.split(' ')[1];
-  } else if (req.cookies && req.cookies.token) {
-    token = req.cookies.token;
+  } else if (req.cookies && req.cookies[env.COOKIE_NAME]) {
+    token = req.cookies[env.COOKIE_NAME];
   }
 
   // Verify token presence
@@ -25,7 +26,7 @@ export const protect = asyncHandler(async (req, res, next) => {
   }
 
   try {
-    // Verify JWT signature via renamed verifyAccessToken helper
+    // Verify JWT signature via verifyAccessToken helper
     const decoded = verifyAccessToken(token);
 
     // Locate matching database user via AuthRepository using object params
