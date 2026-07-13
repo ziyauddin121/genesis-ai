@@ -25,22 +25,34 @@ export const protect = asyncHandler(async (req, res, next) => {
     throw new AppError('Not authorized to access this resource', 401);
   }
 
+  let decoded;
   try {
-    // Verify JWT signature via verifyAccessToken helper
-    const decoded = verifyAccessToken(token);
-
-    // Locate matching database user via AuthRepository using object params
-    const user = await AuthRepository.findById({ id: decoded.id });
-    if (!user) {
-      throw new AppError('User session invalid or deleted', 401);
-    }
-
-    // Attach user payload to request context
-    req.user = user;
-    next();
+    // 1. Verify JWT signature isolated inside try-catch to differentiate auth errors
+    decoded = verifyAccessToken(token);
   } catch (error) {
     throw new AppError('Session token has expired or is invalid', 401);
   }
+
+  // 2. Locate matching database user via AuthRepository using object params (outside try-catch so DB errors trigger 500 status)
+  const user = await AuthRepository.findById({ id: decoded.id });
+  if (!user) {
+    throw new AppError('User session invalid or deleted', 401);
+  }
+
+  // 3. Prevent deactivated user accounts from gaining access
+  if (!user.isActive) {
+    throw new AppError('Your account has been deactivated. Please contact support.', 403);
+  }
+
+  // 4. Attach user context and shortcut identifiers to req payload
+  req.user = user;
+  req.userId = user._id;
+  req.auth = {
+    id: user._id,
+    role: user.role,
+  };
+
+  next();
 });
 
 /**
