@@ -22,6 +22,8 @@ const personalAISchema = new mongoose.Schema(
     personality: {
       tone: {
         type: String,
+        lowercase: true,
+        trim: true,
         enum: {
           values: ['professional', 'friendly', 'casual', 'creative'],
           message: '{VALUE} is not a valid personality tone',
@@ -30,6 +32,8 @@ const personalAISchema = new mongoose.Schema(
       },
       responseStyle: {
         type: String,
+        lowercase: true,
+        trim: true,
         enum: {
           values: ['concise', 'balanced', 'detailed'],
           message: '{VALUE} is not a valid response style',
@@ -39,6 +43,8 @@ const personalAISchema = new mongoose.Schema(
     },
     language: {
       type: String,
+      lowercase: true,
+      trim: true,
       enum: {
         values: ['english', 'hindi', 'hinglish'],
         message: '{VALUE} is not a valid language',
@@ -52,6 +58,8 @@ const personalAISchema = new mongoose.Schema(
     },
     preferredProvider: {
       type: String,
+      lowercase: true,
+      trim: true,
       enum: {
         values: ['gemini', 'openai'],
         message: '{VALUE} is not a valid preferred provider',
@@ -78,6 +86,8 @@ const personalAISchema = new mongoose.Schema(
     },
     status: {
       type: String,
+      lowercase: true,
+      trim: true,
       enum: {
         values: ['active', 'inactive'],
         message: '{VALUE} is not a valid status',

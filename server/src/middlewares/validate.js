@@ -24,4 +24,26 @@ export const validate = (schema) => {
   };
 };
 
+export const validateParams = (schema) => {
+  return (req, res, next) => {
+    const result = schema.safeParse(req.params);
+
+    if (!result.success) {
+      const errors = result.error.issues.map((err) => ({
+        field: err.path.join('.'),
+        message: err.message,
+      }));
+
+      const appError = new AppError('Validation failed', 422);
+      appError.errors = errors;
+
+      return next(appError);
+    }
+
+    // Replace req.params with validated and sanitized data
+    req.params = result.data;
+    next();
+  };
+};
+
 export default validate;
