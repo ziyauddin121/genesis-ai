@@ -16,6 +16,11 @@ export const PROVIDER_MODELS = Object.freeze({
   }),
 });
 
+export const AI_ENDPOINTS = Object.freeze({
+  GEMINI: 'https://generativelanguage.googleapis.com/v1beta/models',
+  OPENAI: 'https://api.openai.com/v1/chat/completions',
+});
+
 export const AI_ROLES = Object.freeze({
   SYSTEM: 'system',
   USER: 'user',

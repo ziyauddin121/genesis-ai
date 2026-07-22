@@ -1,61 +1,80 @@
-import { AI_PROVIDERS, AI_RESPONSE_STATUS } from '../ai.constants.js';
+import {
+  AI_PROVIDERS,
+  AI_ENDPOINTS,
+  AI_TIMEOUT,
+} from '../ai.constants.js';
+import AppError from '../../../utils/AppError.js';
 
 class OpenAIProvider {
   /**
-   * Execute prompt messages against OpenAI API
+   * Execute prompt messages against OpenAI API (Requires Node.js 18+)
+   * Acts as a pure HTTP client returning raw provider data
    */
   async generate({ messages, config = {} }) {
     const { model, temperature, maxTokens } = config;
     const apiKey = process.env.OPENAI_API_KEY;
 
     if (!apiKey) {
-      // Mock execution fallback if API key is absent in dev environment
-      return {
-        status: AI_RESPONSE_STATUS.SUCCESS,
-        content: `[Genesis AI OpenAI Provider Engine]\nGenerated output for model: ${model}`,
-        provider: AI_PROVIDERS.OPENAI,
-        model,
-        usage: {
-          promptTokens: 100,
-          completionTokens: 75,
-          totalTokens: 175,
+      if (process.env.NODE_ENV === 'development') {
+        return {
+          content: `[Genesis AI OpenAI Provider Engine Mock]\nGenerated output for model: ${model}`,
+          provider: AI_PROVIDERS.OPENAI,
+          model,
+          usage: {
+            prompt_tokens: 100,
+            completion_tokens: 75,
+            total_tokens: 175,
+          },
+        };
+      }
+      throw new AppError('OPENAI_API_KEY is missing in environment', 500);
+    }
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), AI_TIMEOUT.REQUEST);
+
+    try {
+      const response = await fetch(AI_ENDPOINTS.OPENAI, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
         },
-      };
+        signal: controller.signal,
+        body: JSON.stringify({
+          model,
+          messages,
+          temperature,
+          max_tokens: maxTokens,
+        }),
+      });
+
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        throw new AppError('Failed to parse OpenAI API JSON response', 502);
+      }
+
+      if (!response.ok) {
+        throw new AppError(
+          data.error?.message || 'OpenAI API request failed',
+          502
+        );
+      }
+
+      return data;
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        throw new AppError('OpenAI API request timed out', 504);
+      }
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(`OpenAI Provider failure: ${error.message}`, 502);
+    } finally {
+      clearTimeout(timeoutId);
     }
-
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        messages,
-        temperature,
-        max_tokens: maxTokens,
-      }),
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      throw new Error(data.error?.message || 'OpenAI API request failed');
-    }
-
-    const content = data.choices?.[0]?.message?.content || '';
-
-    return {
-      status: AI_RESPONSE_STATUS.SUCCESS,
-      content,
-      provider: AI_PROVIDERS.OPENAI,
-      model,
-      usage: {
-        promptTokens: data.usage?.prompt_tokens || 0,
-        completionTokens: data.usage?.completion_tokens || 0,
-        totalTokens: data.usage?.total_tokens || 0,
-      },
-    };
   }
 }
 

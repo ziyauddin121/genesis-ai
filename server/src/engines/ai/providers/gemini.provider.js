@@ -1,26 +1,33 @@
-import { AI_PROVIDERS, AI_RESPONSE_STATUS } from '../ai.constants.js';
+import {
+  AI_PROVIDERS,
+  AI_ENDPOINTS,
+  AI_TIMEOUT,
+} from '../ai.constants.js';
+import AppError from '../../../utils/AppError.js';
 
 class GeminiProvider {
   /**
-   * Execute prompt messages against Google Gemini API
+   * Execute prompt messages against Google Gemini API (Requires Node.js 18+)
+   * Acts as a pure HTTP client returning raw provider data
    */
   async generate({ messages, config = {} }) {
     const { model, temperature, maxTokens } = config;
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {
-      // Mock execution fallback if API key is absent in dev environment
-      return {
-        status: AI_RESPONSE_STATUS.SUCCESS,
-        content: `[Genesis AI Gemini Provider Engine]\nGenerated output for model: ${model}`,
-        provider: AI_PROVIDERS.GEMINI,
-        model,
-        usage: {
-          promptTokens: 120,
-          completionTokens: 80,
-          totalTokens: 200,
-        },
-      };
+      if (process.env.NODE_ENV === 'development') {
+        return {
+          content: `[Genesis AI Gemini Provider Engine Mock]\nGenerated output for model: ${model}`,
+          provider: AI_PROVIDERS.GEMINI,
+          model,
+          usageMetadata: {
+            promptTokenCount: 120,
+            candidatesTokenCount: 80,
+            totalTokenCount: 200,
+          },
+        };
+      }
+      throw new AppError('GEMINI_API_KEY is missing in environment', 500);
     }
 
     const systemMessage =
@@ -28,11 +35,16 @@ class GeminiProvider {
     const userMessage =
       messages.find((m) => m.role === 'user')?.content || '';
 
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-      {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), AI_TIMEOUT.REQUEST);
+
+    try {
+      const endpoint = `${AI_ENDPOINTS.GEMINI}/${model}:generateContent?key=${apiKey}`;
+
+      const response = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        signal: controller.signal,
         body: JSON.stringify({
           systemInstruction: {
             parts: [{ text: systemMessage }],
@@ -48,28 +60,34 @@ class GeminiProvider {
             maxOutputTokens: maxTokens,
           },
         }),
+      });
+
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        throw new AppError('Failed to parse Gemini API JSON response', 502);
       }
-    );
 
-    const data = await response.json();
+      if (!response.ok) {
+        throw new AppError(
+          data.error?.message || 'Gemini API request failed',
+          502
+        );
+      }
 
-    if (!response.ok) {
-      throw new Error(data.error?.message || 'Gemini API request failed');
+      return data;
+    } catch (error) {
+      if (error.name === 'AbortError') {
+        throw new AppError('Gemini API request timed out', 504);
+      }
+      if (error instanceof AppError) {
+        throw error;
+      }
+      throw new AppError(`Gemini Provider failure: ${error.message}`, 502);
+    } finally {
+      clearTimeout(timeoutId);
     }
-
-    const content = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-
-    return {
-      status: AI_RESPONSE_STATUS.SUCCESS,
-      content,
-      provider: AI_PROVIDERS.GEMINI,
-      model,
-      usage: {
-        promptTokens: data.usageMetadata?.promptTokenCount || 0,
-        completionTokens: data.usageMetadata?.candidatesTokenCount || 0,
-        totalTokens: data.usageMetadata?.totalTokenCount || 0,
-      },
-    };
   }
 }
 
