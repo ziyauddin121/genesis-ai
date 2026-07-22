@@ -1,0 +1,83 @@
+import {
+  CAPABILITY_IDS,
+  CAPABILITY_TYPES,
+  CAPABILITY_STATUS,
+} from './capability.constants.js';
+
+export default Object.freeze([
+  Object.freeze({
+    id: CAPABILITY_IDS.WEBSITE_BUILDER,
+    name: 'Website Builder',
+    description:
+      'Generates full-stack and frontend websites from user requirements.',
+    type: CAPABILITY_TYPES.GENERATOR,
+    status: CAPABILITY_STATUS.ACTIVE,
+    priority: 100,
+    handler: 'website-builder',
+    keywords: [
+      'website',
+      'portfolio',
+      'landing',
+      'react',
+      'html',
+      'css',
+      'tailwind',
+      'ui',
+      'web',
+      'navbar',
+      'hero',
+      'footer',
+    ],
+  }),
+  Object.freeze({
+    id: CAPABILITY_IDS.RESUME_BUILDER,
+    name: 'Resume Builder',
+    description: 'Generates professional resumes and CV documents.',
+    type: CAPABILITY_TYPES.GENERATOR,
+    status: CAPABILITY_STATUS.ACTIVE,
+    priority: 90,
+    handler: 'resume-builder',
+    keywords: ['resume', 'cv', 'ats', 'bio', 'experience'],
+  }),
+  Object.freeze({
+    id: CAPABILITY_IDS.DEVELOPER_TOOLS,
+    name: 'Developer Tools',
+    description: 'Assists with code refactoring, API creation, and debugging.',
+    type: CAPABILITY_TYPES.ASSISTANT,
+    status: CAPABILITY_STATUS.ACTIVE,
+    priority: 80,
+    handler: 'developer-tools',
+    keywords: [
+      'code',
+      'function',
+      'api',
+      'refactor',
+      'bug',
+      'debug',
+      'endpoint',
+      'database',
+    ],
+  }),
+  Object.freeze({
+    id: CAPABILITY_IDS.STUDY_TOOLS,
+    name: 'Study Tools',
+    description:
+      'Generates study notes, flashcards, quizzes, and educational summaries.',
+    type: CAPABILITY_TYPES.ASSISTANT,
+    status: CAPABILITY_STATUS.ACTIVE,
+    priority: 60,
+    handler: 'study-tools',
+    keywords: ['study', 'notes', 'flashcard', 'quiz', 'exam', 'summary'],
+  }),
+  Object.freeze({
+    id: CAPABILITY_IDS.GENERAL_ASSISTANT,
+    name: 'General Assistant',
+    description:
+      'Handles general conversational, informative, and fallback AI queries.',
+    type: CAPABILITY_TYPES.ASSISTANT,
+    status: CAPABILITY_STATUS.ACTIVE,
+    priority: 10,
+    handler: 'general-assistant',
+    keywords: ['help', 'explain', 'question', 'general', 'chat', 'info', 'hello', 'hi'],
+  }),
+]);
