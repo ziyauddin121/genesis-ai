@@ -4,7 +4,8 @@ class GeminiProvider {
   /**
    * Execute prompt messages against Google Gemini API
    */
-  async generate({ messages, model, temperature, maxTokens }) {
+  async generate({ messages, config = {} }) {
+    const { model, temperature, maxTokens } = config;
     const apiKey = process.env.GEMINI_API_KEY;
 
     if (!apiKey) {

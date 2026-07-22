@@ -4,7 +4,8 @@ class OpenAIProvider {
   /**
    * Execute prompt messages against OpenAI API
    */
-  async generate({ messages, model, temperature, maxTokens }) {
+  async generate({ messages, config = {} }) {
+    const { model, temperature, maxTokens } = config;
     const apiKey = process.env.OPENAI_API_KEY;
 
     if (!apiKey) {
