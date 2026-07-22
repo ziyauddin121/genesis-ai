@@ -1,5 +1,6 @@
 import { CAPABILITY_IDS, EXECUTION_STATUS } from './capability.constants.js';
 import AppError from '../../utils/AppError.js';
+import aiEngine from '../ai/ai.engine.js';
 
 class CapabilityEngine {
   /**
@@ -32,48 +33,77 @@ class CapabilityEngine {
   }
 
   async #executeWebsiteBuilder(analysis) {
-    // Note: analysis payload will be consumed by AI Engine in Sprint 4+
+    const aiResult = await aiEngine.generate({
+      task: analysis.task || 'Build Website',
+      capability: CAPABILITY_IDS.WEBSITE_BUILDER,
+      analysis,
+    });
+
     return {
       status: EXECUTION_STATUS.SUCCESS,
       capability: CAPABILITY_IDS.WEBSITE_BUILDER,
-      message: 'Website builder capability dispatched',
-      metadata: {},
+      message: 'Website builder capability executed successfully',
+      result: aiResult,
     };
   }
 
   async #executeResumeBuilder(analysis) {
+    const aiResult = await aiEngine.generate({
+      task: analysis.task || 'Build Resume',
+      capability: CAPABILITY_IDS.RESUME_BUILDER,
+      analysis,
+    });
+
     return {
       status: EXECUTION_STATUS.SUCCESS,
       capability: CAPABILITY_IDS.RESUME_BUILDER,
-      message: 'Resume builder capability dispatched',
-      metadata: {},
+      message: 'Resume builder capability executed successfully',
+      result: aiResult,
     };
   }
 
   async #executeStudyTools(analysis) {
+    const aiResult = await aiEngine.generate({
+      task: analysis.task || 'Study Assistant Task',
+      capability: CAPABILITY_IDS.STUDY_TOOLS,
+      analysis,
+    });
+
     return {
       status: EXECUTION_STATUS.SUCCESS,
       capability: CAPABILITY_IDS.STUDY_TOOLS,
-      message: 'Study tools capability dispatched',
-      metadata: {},
+      message: 'Study tools capability executed successfully',
+      result: aiResult,
     };
   }
 
   async #executeDeveloperTools(analysis) {
+    const aiResult = await aiEngine.generate({
+      task: analysis.task || 'Developer Tools Task',
+      capability: CAPABILITY_IDS.DEVELOPER_TOOLS,
+      analysis,
+    });
+
     return {
       status: EXECUTION_STATUS.SUCCESS,
       capability: CAPABILITY_IDS.DEVELOPER_TOOLS,
-      message: 'Developer tools capability dispatched',
-      metadata: {},
+      message: 'Developer tools capability executed successfully',
+      result: aiResult,
     };
   }
 
   async #executeGeneralAssistant(analysis) {
+    const aiResult = await aiEngine.generate({
+      task: analysis.task || 'General AI Task',
+      capability: CAPABILITY_IDS.GENERAL_ASSISTANT,
+      analysis,
+    });
+
     return {
       status: EXECUTION_STATUS.SUCCESS,
       capability: CAPABILITY_IDS.GENERAL_ASSISTANT,
-      message: 'General assistant capability dispatched',
-      metadata: {},
+      message: 'General assistant capability executed successfully',
+      result: aiResult,
     };
   }
 }
