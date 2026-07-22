@@ -1,19 +1,17 @@
-const SENSITIVE_FIELDS = Object.freeze(
-  new Set([
-    'token',
-    'password',
-    'apikey',
-    'secret',
-    'auth',
-    'authorization',
-    'jwt',
-    'accesstoken',
-    'refreshtoken',
-    'cookie',
-    'credentials',
-    'privatekey',
-  ])
-);
+const SENSITIVE_FIELDS = new Set([
+  'token',
+  'password',
+  'apikey',
+  'secret',
+  'auth',
+  'authorization',
+  'jwt',
+  'accesstoken',
+  'refreshtoken',
+  'cookie',
+  'credentials',
+  'privatekey',
+]);
 
 class ContextSanitizer {
   /**

@@ -14,8 +14,7 @@ class ContextManager {
       const summarized = contextSummarizer.summarize(sanitized);
       return contextFormatter.format(summarized);
     } catch (error) {
-      console.error('Context preparation error:', error);
-      return null;
+      throw error;
     }
   }
 }

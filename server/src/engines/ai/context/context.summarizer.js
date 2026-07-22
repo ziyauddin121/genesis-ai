@@ -1,3 +1,5 @@
+const MAX_CONTEXT_FILES = 5;
+
 class ContextSummarizer {
   /**
    * Summarize context payload for token efficiency and clean prompt consumption
@@ -19,12 +21,21 @@ class ContextSummarizer {
 
     if (Array.isArray(data.tasks)) {
       summary.totalTasks = data.tasks.length;
-      summary.recentTask = data.tasks[data.tasks.length - 1]?.title || null;
+      summary.recentTask =
+        typeof data.tasks[data.tasks.length - 1] === 'object'
+          ? data.tasks[data.tasks.length - 1]?.title || null
+          : String(data.tasks[data.tasks.length - 1]);
     }
 
     if (Array.isArray(data.files)) {
       summary.totalFiles = data.files.length;
-      summary.activeFiles = data.files.slice(0, 5);
+      summary.activeFiles = data.files
+        .slice(0, MAX_CONTEXT_FILES)
+        .map((file) =>
+          typeof file === 'object'
+            ? file.name || file.filename || file.path || String(file)
+            : String(file)
+        );
     }
 
     // Include scalar primitives
