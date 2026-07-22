@@ -1,4 +1,4 @@
-import { AI_ROLES } from './ai.constants.js';
+import { AI_ROLES, PROMPT_VERSION } from './ai.constants.js';
 import { BASE_PROMPT } from './prompts/base.prompt.js';
 import { WEBSITE_PROMPT } from './prompts/website.prompt.js';
 import { RESUME_PROMPT } from './prompts/resume.prompt.js';
@@ -28,7 +28,7 @@ class PromptBuilder {
       throw new AppError('Task object is required for prompt generation', 400);
     }
 
-    const taskTitle = typeof task === 'object' ? task.title : String(task);
+    const taskTitle = typeof task === 'string' ? task : task.title;
     const taskDescription =
       typeof task === 'object' ? task.description || '' : '';
 
@@ -44,13 +44,13 @@ class PromptBuilder {
       PROMPT_MAP[capabilityId] || PROMPT_MAP['general-assistant'];
 
     // 3. Compose Two-Layer System Prompt
-    const systemPrompt = `${BASE_PROMPT}\n\n${capabilityPrompt}`;
+    const systemPrompt = [BASE_PROMPT, capabilityPrompt].join('\n\n');
 
     // 4. Build User Prompt
     const userPromptParts = [`### Task Title:\n${taskTitle}`];
 
     if (taskDescription) {
-      userPromptParts.push(`### Task Description:\n${taskDescription}`);
+      userPromptParts.push(`### User Requirements:\n${taskDescription}`);
     }
 
     if (analysis) {
@@ -95,8 +95,9 @@ class PromptBuilder {
     return {
       messages,
       metadata: {
-        version: 'v1',
         capability: capabilityId || 'general-assistant',
+        complexity: analysis?.complexity || 'unknown',
+        promptVersion: PROMPT_VERSION,
       },
     };
   }

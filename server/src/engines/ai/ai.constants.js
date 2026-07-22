@@ -1,3 +1,5 @@
+export const PROMPT_VERSION = 'v1';
+
 export const AI_PROVIDERS = Object.freeze({
   GEMINI: 'gemini',
   OPENAI: 'openai',
