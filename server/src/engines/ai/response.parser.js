@@ -6,44 +6,87 @@ class ResponseParser {
     if (!rawResponse) {
       return {
         content: '',
-        provider: providerInfo.provider || 'unknown',
-        model: providerInfo.model || 'unknown',
+        provider: providerInfo.provider ?? 'unknown',
+        model: providerInfo.model ?? 'unknown',
         usage: {
           promptTokens: 0,
           completionTokens: 0,
           totalTokens: 0,
         },
+        finishReason: null,
+        metadata: {},
       };
     }
 
-    // Standardized extraction if provider already formatted payload
-    const content =
-      rawResponse.content ||
-      rawResponse.choices?.[0]?.message?.content ||
-      rawResponse.candidates?.[0]?.content?.parts?.[0]?.text ||
-      (typeof rawResponse === 'string' ? rawResponse : '');
-
-    const usage = {
-      promptTokens:
-        rawResponse.usage?.promptTokens ||
-        rawResponse.usageMetadata?.promptTokenCount ||
-        0,
-      completionTokens:
-        rawResponse.usage?.completionTokens ||
-        rawResponse.usageMetadata?.candidatesTokenCount ||
-        0,
-      totalTokens:
-        rawResponse.usage?.totalTokens ||
-        rawResponse.usageMetadata?.totalTokenCount ||
-        0,
+    return {
+      content: this.#extractContent(rawResponse),
+      provider: providerInfo.provider ?? rawResponse.provider ?? 'unknown',
+      model: providerInfo.model ?? rawResponse.model ?? 'unknown',
+      usage: this.#extractUsage(rawResponse),
+      finishReason: this.#extractFinishReason(rawResponse),
+      metadata: rawResponse.metadata ?? {},
     };
+  }
+
+  /**
+   * Private Helper: Extract text content across Gemini, OpenAI, or direct outputs
+   */
+  #extractContent(rawResponse) {
+    if (typeof rawResponse === 'string') {
+      return rawResponse;
+    }
+
+    if (rawResponse.content !== undefined && rawResponse.content !== null) {
+      return rawResponse.content;
+    }
+
+    if (rawResponse.choices?.[0]?.message?.content !== undefined) {
+      return rawResponse.choices[0].message.content;
+    }
+
+    const geminiParts = rawResponse.candidates?.[0]?.content?.parts;
+    if (Array.isArray(geminiParts)) {
+      return geminiParts.map((part) => part.text ?? '').join('');
+    }
+
+    return '';
+  }
+
+  /**
+   * Private Helper: Extract token usage metrics across providers
+   */
+  #extractUsage(rawResponse) {
+    const usageObj = rawResponse.usage ?? rawResponse.usageMetadata ?? {};
 
     return {
-      content,
-      provider: providerInfo.provider || rawResponse.provider || 'unknown',
-      model: providerInfo.model || rawResponse.model || 'unknown',
-      usage,
+      promptTokens:
+        usageObj.promptTokens ??
+        usageObj.prompt_tokens ??
+        usageObj.promptTokenCount ??
+        0,
+      completionTokens:
+        usageObj.completionTokens ??
+        usageObj.completion_tokens ??
+        usageObj.candidatesTokenCount ??
+        0,
+      totalTokens:
+        usageObj.totalTokens ??
+        usageObj.total_tokens ??
+        usageObj.totalTokenCount ??
+        0,
     };
+  }
+
+  /**
+   * Private Helper: Extract finish reason (e.g. 'stop', 'length')
+   */
+  #extractFinishReason(rawResponse) {
+    return (
+      rawResponse.finishReason ??
+      rawResponse.choices?.[0]?.finish_reason ??
+      rawResponse.candidates?.[0]?.finishReason ??
+      null
+    );
   }
 }
 
