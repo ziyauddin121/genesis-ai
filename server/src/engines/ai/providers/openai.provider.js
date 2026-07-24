@@ -14,8 +14,14 @@ class OpenAIProvider {
     const { model, temperature, maxTokens } = config;
     const apiKey = process.env.OPENAI_API_KEY;
 
-    if (!apiKey) {
-      if (process.env.NODE_ENV === 'development') {
+    const isMockKey =
+      !apiKey ||
+      apiKey === 'mock-api-key' ||
+      apiKey.startsWith('mock') ||
+      apiKey.includes('your_');
+
+    if (isMockKey) {
+      if (process.env.NODE_ENV === 'development' || !apiKey) {
         return {
           content: `[Genesis AI OpenAI Provider Engine Mock]\nGenerated output for model: ${model}`,
           provider: AI_PROVIDERS.OPENAI,

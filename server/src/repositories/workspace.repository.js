@@ -30,7 +30,7 @@ const update = async ({ workspaceId, ownerId, updateData }) => {
   return await Workspace.findOneAndUpdate(
     { _id: workspaceId, owner: ownerId, isArchived: false },
     updateData,
-    { new: true, runValidators: true }
+    { returnDocument: 'after', runValidators: true }
   ).exec();
 };
 
@@ -41,7 +41,7 @@ const archive = async ({ workspaceId, ownerId }) => {
   return await Workspace.findOneAndUpdate(
     { _id: workspaceId, owner: ownerId, isArchived: false },
     { isArchived: true },
-    { new: true }
+    { returnDocument: 'after' }
   ).exec();
 };
 

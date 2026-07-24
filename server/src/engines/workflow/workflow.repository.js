@@ -27,7 +27,7 @@ class WorkflowRepository {
    */
   async updateById(id, data) {
     return Workflow.findByIdAndUpdate(id, data, {
-      new: true,
+      returnDocument: 'after',
       runValidators: true,
     }).exec();
   }

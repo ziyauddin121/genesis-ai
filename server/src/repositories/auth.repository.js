@@ -30,7 +30,7 @@ const create = async (userData) => {
  */
 const update = async ({ id, updateData }) => {
   return await User.findByIdAndUpdate(id, updateData, {
-    new: true,
+    returnDocument: 'after',
     runValidators: true,
   }).exec();
 };

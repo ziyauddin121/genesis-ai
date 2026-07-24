@@ -44,6 +44,9 @@ class AIEngine {
         config,
       });
     } catch (error) {
+      if (error instanceof AppError) {
+        throw error;
+      }
       throw new AppError(
         `AI provider request failed: ${error.message}`,
         502

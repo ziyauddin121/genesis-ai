@@ -41,7 +41,7 @@ const updateByUserId = async ({ userId, updateData }) => {
   return await PersonalAI.findOneAndUpdate(
     { user: userId },
     updateData,
-    { new: true, runValidators: true }
+    { returnDocument: 'after', runValidators: true }
   ).exec();
 };
 

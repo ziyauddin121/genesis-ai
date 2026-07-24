@@ -34,7 +34,7 @@ const updateTask = async ({ taskId, ownerId, updateData }) => {
   return await Task.findOneAndUpdate(
     { _id: taskId, owner: ownerId },
     updateData,
-    { new: true, runValidators: true }
+    { returnDocument: 'after', runValidators: true }
   ).exec();
 };
 
